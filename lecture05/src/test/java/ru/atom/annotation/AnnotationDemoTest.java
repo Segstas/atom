@@ -1,33 +1,24 @@
 package ru.atom.annotation;
 
-import org.junit.Ignore;
 import org.junit.Test;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import ru.atom.mm.controller.ConnectionController;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
+import static junit.framework.TestCase.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.core.IsEqual.equalTo;
 
-@Ignore
 public class AnnotationDemoTest {
 
     @Test
     public void countOverride() throws Exception {
-        assertThat(AnnotationDemo.getNumberOfAnnotatedMethods(
-                ru.atom.servlet.mm.ConnectionHandler.class, Override.class), is(equalTo(0)));
+        assertEquals(0, AnnotationDemo.getNumberOfAnnotatedMethods(
+                ConnectionController.class, Override.class));
     }
 
     @Test
-    public void countGet() throws Exception {
-        assertThat(AnnotationDemo.getNumberOfAnnotatedMethods(
-                ru.atom.jersey.hw.HelloJerseyWorld.class, GET.class), is(equalTo(1)));
-    }
-
-    @Test
-    public void countPost() throws Exception {
-        assertThat(AnnotationDemo.getNumberOfAnnotatedMethods(
-                ru.atom.jersey.mm.ConnectionHandler.class, POST.class), is(equalTo(1)));
+    public void countResponseStatus() throws Exception {
+        assertEquals(1, AnnotationDemo.getNumberOfAnnotatedMethods(
+                ConnectionController.class, ResponseStatus.class));
     }
 }

@@ -1,22 +1,24 @@
-#HSLIDE
+---
 # Java
 lecture 12
 ## Garbage Collection
 
-#HSLIDE
+---
 ## Отметьтесь на портале
-https://atom.mail.ru/
+https://sphere.mail.ru/
 
-#HSLIDE
+---
 ### get ready
+https://github.com/rybalkinsd/atom
 ```bash
 > git fetch upstream
 > git checkout -b lecture12 upstream/lecture12
+> cd lecture12
 ```
 Refresh gradle project
 
 
-#HSLIDE
+---
 ## Agenda
 1. Heap
 1. Object layout
@@ -24,12 +26,12 @@ Refresh gradle project
 1. Java Garbage Collection
 1. Troubleshooting
 
-#HSLIDE
+---
 ## GC is JVM-specific
 The following material is mostly **JVM-specific**  
 We will look at [**HotSpot**](http://www.oracle.com/technetwork/articles/javase/index-jsp-136373.html) implementation, as it is De facto standard for servers  
 
-#HSLIDE
+---
 ## Agenda
 1. **[Heap]**
 1. Object layout
@@ -37,20 +39,20 @@ We will look at [**HotSpot**](http://www.oracle.com/technetwork/articles/javase/
 1. Java Garbage Collection
 1. Troubleshooting
 
-#HSLIDE
+---
 ## Structure of java process
 Global structure of java process is defined by Java Virtual Machine Specification (JVMS)
 https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-2.html#jvms-2.5  
 <img src="lecture12/presentation/assets/img/heap.png" alt="heap" style="width: 600px;"/>  
 
 
-#HSLIDE
+---
 ## Heap structure
 Heap is automatically managed by Garbage Collector (GC).  
 The structure of heap depend on chosen GC implementation.  
 **Hotspot** provide several implementations. (proceed reading)
 
-#HSLIDE
+---
 What happen when
 ```java
 new Object();
@@ -64,7 +66,7 @@ int i = 10;
 ```
 int is allocated on stack
 
-#HSLIDE
+---
 ## Object allocation
 ￼... So objects are allocated on **heap**  
 Q: Can objects (e.g. local for method) be allocated on stack?  
@@ -73,12 +75,12 @@ Q: Is that this heap? https://en.wikipedia.org/wiki/Heap_(data_structure)
 A: No! Heap has complex structure which depends on chosen **GC**   
 Q: So, how is Object represented in heap? A: ...
 
-#HSLIDE
+---
 ## Object allocation example
 https://docs.oracle.com/javase/tutorial/java/javaOO/objectcreation.html  
 <img src="lecture12/presentation/assets/img/allocation.png" alt="allocation" style="width: 600px;"/>  
 
-#HSLIDE
+---
 ## Agenda
 1. Heap
 1. **[Object layout]**
@@ -86,7 +88,7 @@ https://docs.oracle.com/javase/tutorial/java/javaOO/objectcreation.html
 1. Java Garbage Collection
 1. Troubleshooting
 
-#HSLIDE
+---
 ## Game: guess footprint
 **footprint** - total size of reference + shadow (retained) size (all the referenced objects and primitives recursively) 
 What is the footprint of:
@@ -102,27 +104,27 @@ What is the footprint of:
 
 **Warning:** Not an easy game!
 
-#HSLIDE
+---
 ## Object layout
 Layout - how objects are represented in heap  
 “The Java Virtual Machine does not mandate any particular internal structure for objects”  
 https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-2.html#jvms-2.7  
 We will look at **HotSpot** implementation (Java 8)  
 
-#HSLIDE
+---
 ## Object layout details
 Object layout is:  
 - JVM specific
 - bitness dependent
 - tunable by JVM flags  
 
-#HSLIDE
+---
 ## Object layout in hotspot
 Example for x64 system with [**-XX:+UseCompressedOops**](http://docs.oracle.com/javase/7/docs/technotes/guides/vm/performance-enhancements-7.html#compressedOop) for heaps less than 32GiB object reference is 32 bit else 64 bit  
 <img src="lecture12/presentation/assets/img/layout.png" alt="layout" style="width: 600px;"/>  
 
-#HSLIDE
-##jol
+---
+## jol
 Good tool for object layout analysis - **Java Object Layout** (jol)  
 http://openjdk.java.net/projects/code-tools/jol/  
 [mvnrepository](https://mvnrepository.com/artifact/org.openjdk.jol/jol-core)  
@@ -132,7 +134,7 @@ http://openjdk.java.net/projects/code-tools/jol/
 @see org.openjdk.jol.samples.JOLSample_03_Packing  
 @see ru.atom.lecture12.GuessSize  
 
-#HSLIDE
+---
 ## Agenda
 1. Heap
 1. Object layout
@@ -140,34 +142,34 @@ http://openjdk.java.net/projects/code-tools/jol/
 1. Java Garbage Collection
 1. Troubleshooting
 
-#HSLIDE
+---
 ## GC theory
 GC theory is mature. Same ideas are reused over different runtimes  
 The most comprehensive and modern gc theory book:
 http://gchandbook.org/
 
-#HSLIDE
+---
 ## GC is better then refcounter
 1. Looping
 2. Compacting/fragmentation
 
-#HSLIDE
+---
 ## Generations idea
 Live fast die young
 <img src="lecture12/presentation/assets/img/gen.png" alt="gen" style="width: 700px;"/>
 
 
-#HSLIDE
+---
 ## Stop-the-world
 - sometimes we have to wait
 
-#HSLIDE
+---
 ## GC Tradeoff
 Latency-Throughput-Footprint
 <img src="lecture12/presentation/assets/img/triangle.png" alt="triangle" style="width: 700px;"/>
 
 
-#HSLIDE
+---
 ## Agenda
 1. Heap
 1. Object layout
@@ -176,7 +178,7 @@ Latency-Throughput-Footprint
 1. Troubleshooting
 
 
-#HSLIDE
+---
 # Java GC Basics
 Q: Why we need Garbage Collector  
 A: To remove garbage, obviously  
@@ -187,12 +189,12 @@ A: No. Object is garbage if it can not be reached from GC Roots
 Q: What are GC Roots? A: ... (proceed reading)  
 
 
-#HSLIDE
+---
 ## GC Roots
 <img src="lecture12/presentation/assets/img/gcroots.jpg" alt="gcroots" style="width: 700px;"/>  
 
 
-#HSLIDE
+---
 ## No manual memory management in Java
 GC removes unused objects for you. No manual memory management is required.  
 Moreover, GC **can not** be controlled directly.
@@ -202,7 +204,7 @@ Runtime.gc();// this is just recomendation
 ```
 You still can manage memory via (Java Native Interface) **JNI** or via **misc.Unsafe** but one **never** encouraged to do so.  
 
-#HSLIDE
+---
 ## Memory leaks
 While technically GC prevents memory leaks from errors during manual memory management (common in C++), you can still introduce memory leak by confusing GC from garbage removal  
 - Unclosed resources of different kind  
@@ -216,28 +218,28 @@ instance of non-static inner class has reference to instance of enclosing class
 - thread-locals  
 Thread-locals live while thread live unless explicitly cleared  
 
-#HSLIDE
+---
 ## Memory leaks examples
 http://stackoverflow.com/questions/6470651/creating-a-memory-leak-with-java
 https://habrahabr.ru/post/132500/
 (except String.substring() - this is not the case anymore)
 
-#HSLIDE
+---
 ## GC is configurable
 There are several implementations of GC in Hotspot. Each of them is configurable via **JVM parameters**.
 <img src="lecture12/presentation/assets/img/gcs.png" alt="monitor" style="width: 700px;"/>  
 
-#HSLIDE
+---
 ## Do we need to configure our GC?
 Default configuration is fine for simple applications. Bad configuration can be deadly for real projects.
 
-#HSLIDE
+---
 ## Is GC a silver bullet?
 GC power comes at cost of **performance**:
 1. GC is one or more threads working in background
 2. All gc implementations in Hotspot are **stop the world** (sometimes during GC work all application threads stop running until gc done)
 
-#HSLIDE
+---
 ## Stop the world
 All GCs in HotSpot are **Stop-the-world**
 i.e. there are moments when all the application threads are stopped and GC is working.  
@@ -247,62 +249,143 @@ http://openjdk.java.net/projects/shenandoah/ (not production-ready)
 There are JVM implementations where GC is pauseless: https://www.azul.com/products/zing/ (proprietary)  
 
 
-#HSLIDE
+---
 ## Agenda
 1. Heap
 1. Object layout
 1. GC Theory
 1. Java Garbage Collection
 1. **[Troubleshooting]**
->see GarbageProducer
+    @see GarbageProducer
 
-#HSLIDE
+---
 ## Docker
-Docker https://www.docker.com/
+[[Docker]](https://www.docker.com/)
+
 **Docker** - toolchain for lightweight customizable deployment
 (delivery of you code to production)
 
-#HSLIDE
+---
 ## Docker basics
 **Image** - description of **minimal virtual machine** that will contain **application**, that we want to **deploy**.  
-It is provisioned via **Dockerfile**:  
+It is provisioned via **Dockerfile** :  
 - what is our application  
 - what we need for our application  
   
 **Container** - instance of image, able to deploy 
 
-#HSLIDE
+---
 ## Why docker?
 - lightweight
 - solves problems with dependencies collision
 - **development** environment is the same as **production**
 - docker toolchain allows many cool features
 
-#HSLIDE
-##Docker practice
->see lecture11/ru.atom.lecture11/Dockerfile
+---
+## Docker practice
 
-#HSLIDE
-## Deploy service to our docker could
+@see **lecture05/Dockerfile**
+
+
+
+---
+## Basic commands
+If these commands work, then Docker installed properly  
+  
+1. show local images
+    ```bash
+    > docker images 
+    ```
+
+1. show running containers
+    ```bash
+    > docker ps
+    ```
+
+---
+### Docker algorithm
+1. Build docker image
+1. Run docker container locally 
+1. Publish docker image
+1. Deploy docker container to container service
+
+
+---
+### 1) Build docker image
+1. Build project with gradle
+```bash
+gradlew clean lecture05:build
+```
+1. Build docker **image**
+```bash
+docker build --tag helloboot:1.0 lecture05
+```
+1. Check image is built
+```bash
+docker images
+```
+
+
+---
+### 2) Run docker container locally 
+1. Run **container** locally
+```bash
+docker run -p 80:8080 YOUR_DOCKER_HUB_NAME/helloboot:1.0
+```
+1. Check container started
+```bash
+docker ps
+```
+1. Check application works
+
+
+---
+### 3) Publish docker image
 1. login with your name on  
-> docker login
- 
-1. build image
-> docker build --tag yourname/servicename:version path/to/dir-with-Dockerfile
-  
+```bash
+docker login
+``` 
 1. push image to repository
-docker push yourname/servicename:version
-  
-1. go to http://docker.bmstu.cloud:8080/ in browser
-  
-1. Deploy container
+```bash
+docker push YOUR_DOCKER_HUB_NAME/helloboot:1.0
+```
 
-#HSLIDE
-## Docker howto
-Docker images - show local images
-Docker ps - show running containers
+---
+### 4) Deploy docker container to AWS
+1. Find your credentials  
+https://docs.google.com/spreadsheets/d/1i-WoyUrpunxwmFYkUGTLqm6ue6J24V0Py4OkjCLCaVc/edit?usp=sharing
+1. login  
+https://302755701450.signin.aws.amazon.com/console  
+1. go to  
+Services -> EC2 Container Service
+1. Deploy
 
-#HSLIDE
+---
+## Docker full example
+1. Build project
+```
+gradlew clean lecture05:build
+```
+1. Build docker **image**
+```
+docker build --tag YOUR_DOCKER_HUB_NAME/helloboot:1.0 lecture05
+```
+1. Run **container** from **image** locally
+```
+docker run -p 80:8080 YOUR_DOCKER_HUB_NAME/helloboot:1.0
+```
+1. login into docker hub (if not logged in already)
+```
+docker login
+```
+1. push image to docker hub
+```
+docker push YOUR_DOCKER_HUB_NAME/helloboot:1.0
+```
+1. go to **aws** web interface and deploy
+
+
+---
 **Оставьте обратную связь**
 (вам на почту придет анкета)  
 

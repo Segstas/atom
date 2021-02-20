@@ -1,59 +1,60 @@
-#HSLIDE
+---
 # Java
 lecture 10
-## Practical Concurrency
+## Game threads
 
-#HSLIDE
+---
 ## Отметьтесь на портале
-https://atom.mail.ru/
+https://sphere.mail.ru/
 
-#HSLIDE
+---
 ### get ready
+https://github.com/rybalkinsd/atom
 ```bash
 > git fetch upstream
 > git checkout -b lecture10 upstream/lecture10
+> cd lecture10
 ```
 Refresh gradle project
 
-
-#HSLIDE
+---
 ## Agenda
 1. Threads and processes
 1. Multiple threads in game
 1. Parallelism and Concurrency
 1. What can go wrong with concurrency?
-1. What to do?
-1. Practice
+1. Synchronization. Critical section
+1. Game threading scheme
 
-#HSLIDE
+---
 ## Agenda
 1. **[Threads and processes]**
 1. Multiple threads in game
 1. Parallelism and Concurrency
 1. What can go wrong with concurrency?
 1. Synchronization. Critical section
-1. Practice
+1. Game threading scheme
 
-#HSLIDE
+---
 ## Parallelism
 Why need parallelism?
 
-#HSLIDE
+---
 ## How parallelism is possible?
 - A cluster of machines
 - Several processes within single machine
 - Several Threads within single process
 
-#HSLIDE
+---
 ### Process vs Thread
 - **Process** has dedicated resources (memory)
 - **Threads** share memory space
 
-#HSLIDE
+---
 ### Process vs Thread
 <img src="lecture10/presentation/assets/img/process.png" alt="process" style="width: 450px;"/>
 
-#HSLIDE
+---
 ## Threads and processes. OS Role
 Operating System
 - provides API (**system calls**) for creating and running threads and processes. Normally a **program** is represented by single **process**.
@@ -64,13 +65,13 @@ Famous Threads and Processes API from UNIX world:
 - [**fork**](https://linux.die.net/man/2/fork) (creates process)  
 - [**clone**](http://man7.org/linux/man-pages/man2/clone.2.html) (creates thread)  
   
-#HSLIDE
+---
 ## Java Threads
 The programming language provide it's own API for managing threads and processes, that use system calls under the hood
 
 In **Java** we get **Thread** class and **Runnable** interface
 
-#HSLIDE
+---
 ### interface Runnable
 ```java
 @FunctionalInterface
@@ -80,7 +81,7 @@ interface Runnable {
 ```
 
 
-#HSLIDE
+---
 ### class Thread
 ```java
 class Thread implements Runnable {  
@@ -94,33 +95,13 @@ class Thread implements Runnable {
 ```
 
 
-#HSLIDE
+---
 ### Start and Run
 ```java
-new Thread().start();
-
 new Thread( runnable ).start();
 ```
 
-
-#HSLIDE
-### Start and Run
-<img src="lecture10/presentation/assets/img/newthread.png" alt="exception" style="width: 750px;"/>
-
-#HSLIDE
-## Multithreaded programs are racy
-Behaviour of multithreaded program is (inter alia) dependent on **OS scheduling**
-Multithreaded programs are **racy** by nature.
-
-#HSLIDE
-## Race condition
-Race condition (состояние гони, гонка)
-program behaviour where the output is dependent on the
-sequence or timing of other uncontrollable events
-Parallel programs are racy by nature, some races are erroneous.
-> @see ru.atom.lecture10.races
-
-#HSLIDE
+---
 ## jstack
 Util to observe java process stack state.
  
@@ -128,76 +109,162 @@ Util to observe java process stack state.
 # show all java processes
 > jcmd
 # get report
-> jstack <pid> > report.info
-> less report.info
+> jstack <pid>
 ```
 
-#HSLIDE
+---
 ## Agenda
 1. Threads and processes
 1. **[Multiple threads in game]**
 1. Parallelism and Concurrency
 1. What can go wrong with concurrency?
+1. Concurrency and data races
 1. Synchronization. Critical section
-1. Practice
+1. Game threading scheme
 
-#HSLIDE
-## Multuple threads in Bomberman
-Our Bomberman is a **client-server** game.  
-Every player establishes **Session** with Server over **WebSocket**.  
-Every connection is processed in **dedicated thread** (Actually thread from some **ThreadPool**).  
-That is players are in different threads.
+---
+## Game Server threads in Bomberman
+<img src="lecture10/presentation/assets/img/GameThreads.png" alt="exception" style="width: 850px;"/>
 
-#HSLIDE
-## How different threads communicate?
-As usual - they can communicate via public variables, via mutable objects.
+---
+### How different threads can communicate?
+Nothing new - they can communicate via public variables, via mutable objects.  
+### How threads communicate in our game  
+0. **Only game-mechanics thread** communicate with **GameSession** (so game mechanics is single-threaded)
+0. WS threads communicate with game mechanics via **thread-safe queue**
 
-#HSLIDE
+---
+## Game state
+**GameSession** - mechanics state (players, position)  
+**InputQueue** - input data from users  
+**ConnectionPool** - connected players  
+
+---
 ## Agenda
 1. Threads and processes
 1. Multiple threads in game
 1. **[Parallelism and Concurrency]**
 1. What can go wrong with concurrency?
+1. Concurrency and data races
 1. Synchronization. Critical section
-1. Practice
+1. Game threading scheme
 
-#HSLIDE
+---
 ## What does it mean that threads share memory?
 They read and write to shared mutable variable (**shared mutable state**)
 > @see ru.atom.lecture10.sharedmutablestate
 
-#HSLIDE
+---
 ## Concurrency vs parallelism
 **Concurrency** - contention on shared resources (memory, shared state)  
 **Parallelism** - is possible without concurrency  
 
-#HSLIDE
+---
 ## Examples?
 Any examples of task that can be executed in parallel without concurrency?
 
-#HSLIDE
+---
 ## Bomberman server is concurrent
 Different threads change and read game state  
-What is game state in Bomberman?  
+Examples of game state in Bomberman?  
 Is it **shared mutable state**?
 
-#HSLIDE
+---
 ## Agenda
 1. Threads and processes
 1. Multiple threads in game
 1. Parallelism and Concurrency
 1. **[What can go wrong with concurrency?]**
+1. Concurrency and data races
 1. Synchronization. Critical section
-1. Practice
+1. Game threading scheme
 
-#HSLIDE
+
+---
 ## What if we just write concurrent program as single-threaded?
-Many things will go wrong. It depends on **Memory Model** of language.  
-First let's look at how MM is implemented in other languages and in Java.
+**Many things will go wrong**
+> @see ru.atom.lecture10.billing
 
 
-#HSLIDE
+---
+## Billing example
+This simple example shows how you can loose money when using bad synchronization Oo  
+Billing service allow to transfer money between users  
+```bash
+curl -XPOST localhost:8080/billing/addUser -d "user=sasha&money=100000"
+curl -XPOST localhost:8080/billing/addUser -d "user=sergey&money=100000"
+curl localhost:8080/billing/stat
+curl -XPOST localhost:8080/billing/sendMoney -d "from=sergey&to=sasha&money=1"
+```
+Start server and emulate fast money transfer with **jmeter**. Then look at stat again:
+```bash
+curl localhost:8080/billing/stat
+```
+> @see ru.atom.lecture10.billing
+
+---
+## You've lost your money (or gained)
+Technically, the invariant was broken:
+> Total amount of money in system must be preserved during **sendMoney**
+
+Why we loose money?  
+Because in multithreaded systems **guarantees are weaker** than in single-threaded.  
+Multithreaded systems **without proper synchronization** have some problems.
+
+---
+## 1. Race condition
+Race condition (состояние гони, гонка)
+program behaviour where the output is dependent on the
+sequence or timing of other uncontrollable events  
+  
+Behaviour of multithreaded program is (inter alia) dependent on **OS scheduling**  
+  
+**Uncontrollable races are almost always erroneous**  
+> @see ru.atom.lecture10.racesconditions
+
+---
+## 2. Data races
+**Data race** - when several processes communicate via **shared mutable state** and at least one is writing **without proper synchronization**  
+ (Not the same as race conditions)
+
+Is **Bomberman** prone to data races?  
+> @see ru.atom.lecture10.dataraces
+> @see ru.atom.lecture10.volatileexample
+
+---
+## 3. Locking problems
+Standard way to handle multi-threaded problems is using critical sections (on locks)
+Locking misuse can lead to common problems:
+- deadlocks
+- livelocks
+
+---
+## 4. Performance
+Reasoning about performance of concurrent programs is tricky
+> @see https://shipilev.net/
+
+---
+## Agenda
+1. Threads and processes
+1. Multiple threads in game
+1. Parallelism and Concurrency
+1. What can go wrong with concurrency?
+1. **[Concurrency and data races]**
+1. Synchronization. Critical section
+1. Game threading scheme
+
+---
+## Concurrency and data races
+Data races guaranties are defined by **Java Memory Model (JMM)**
+There are 3 reasons for data races according to JMM. The following guaranties are **weaker** in multithreaded environment than in single-threaded:
+- Atomicity
+- Visibility
+- Ordering
+
+
+---
 ## Concurrency in different languages
+Let's look at how MM is implemented in other languages and in Java.  
 Many languages have no default concurrency support (does not have **Memory Model**)
 - c (concurrency provided by **pthreads** library)
 - c++ (before C++11)
@@ -205,14 +272,14 @@ Some just avoid concurrency
 - Python (GIL)
 - Ruby (GIL, Introduced Guild Locks)
 
-#HSLIDE
-## What about Memory Model in Java
+---
+## Java Memory Model
 Java Provide low-level powerful **Memory Model**, that allows threads freely communicate via shared mutable state.  
-With JMM one can create highly-concurrent high-performance system.
+Based on JMM one can create highly-concurrent high-performance system.
 The power is gained at cost of complexity.  
 **JMM** sacrifices some basic guaranties: **guaranties** that are obvious in single-threaded environment **does not work** in multithreaded environment.
 
-#HSLIDE
+---
 ## Java Memory Model (JMM)
 Formally this is defined by **Java Language Specification**  
 Specifically by **Java Memory Model** (**JMM**)
@@ -221,31 +288,20 @@ https://docs.oracle.com/javase/specs/jls/se8/html/jls-17.html
 (do not read! first look at https://shipilev.net/#jmm )  
 JMM is tricky to understand and is hard to use directly.
 
-#HSLIDE
+---
 ## What JMM states?
 JMM specifies what can be **read** by particular read action in program.  
 More precisely it defines **guarantees** on read/write atomicity, write visibility and instruction ordering.
 
-#HSLIDE
+---
 ## JMM. Why so complex?
 JVM is highly optimized. This is possible because of relatively weak guarantees of JMM.  
 JMM was created as a trade-off between performance, complexity of JVM and abilities of hardware.  
 JMM considered to be one of the most successful memory models.  
 Recently Introduced C++ Memory Model is highly based on JMM.  
 
-#HSLIDE
-## Data race
-**Data race** - when several processes communicate via **shared mutable state** and at least one is writing **without proper synchronization**   
-> @see ru.atom.lecture10.dataraces
 
-Is **Bomberman** prone to data races?  
-  
-There are 3 reasons for data races according to JMM. The following guaranties are **weaker** in multithreaded environment than in single-threaded:
-- Atomicity
-- Visibility
-- Ordering
-
-#HSLIDE
+---
 ## Atomicity
 Some operations that are expected to be atomic - are not:
 - i++;
@@ -258,54 +314,46 @@ if (!map.containsKey(key)) {
 ```
 > @see ru.atom.lecture10.dataraces
 
-#HSLIDE
+---
 ## Visibility
 Modern processors have multi-level caches. Thus threads running on different processors may not see changes made by other threads.  
 It actually depends on cache [**coherence protocol**](https://en.wikipedia.org/wiki/Cache_coherence).  
 > @see ru.atom.lecture10.volatileexample
 
-#HSLIDE
+---
 ## Visibility
 <img src="lecture10/presentation/assets/img/visibility.png" alt="queue" style="width: 600px;"/>
 
-#HSLIDE
+---
 ## Ordering
-In sake of performance **javac**, **jit** and **JVM** may change your code whenever it is accepted by **Java Memory Model**, that is it can reorder instructions.
+To achieve high performance **javac**, **jit** and **runtime** may change your code whenever it is accepted by **Java Memory Model**, that is it can reorder instructions.
 After all, **processor** reorders instructions by himself.  
 JMM restrict some reorderings.
 > @see ru.atom.lecture10.ordering 
 
-#HSLIDE
-## Any other problems?
-Many other problems, among them:
-- deadlocks
-- livelocks
-- performance  
-Reasoning about performance of concurrent programs is tricky
-> @see https://shipilev.net/
-
-#HSLIDE
+---
 ## What to do?
 - Declare critical sections via **synchronized** keyword
 - Use java.util.concurrent (next lecture)
 - use low-level concurrency (next lecture)
 
-#HSLIDE
+---
 ## Agenda
 1. Threads and processes
 1. Multiple threads in game
 1. Parallelism and Concurrency
 1. What can go wrong with concurrency?
-1. **[1. Synchronization. Critical section]**
-1. Practice
+1. Concurrency and data races
+1. **[Synchronization. Critical section]**
+1. Game threading scheme
 
-#HSLIDE
+---
 ## Critical section
 In Java we can declare code block as **synchronized** on some **object**.  
 The object will protect the code block and allow only single thread to enter the **code block** simultaneously  
 This is possible because in Java **every object** has **internal monitor**
 
-#HSLIDE
+---
 ## synchronized
 synchronization on custom object
 ```java
@@ -333,18 +381,18 @@ public class SomeClass{
 }
 ```
 
-#HSLIDE
+---
 ## Internal monitor
 Every object has **internal monitor**  
 Monitor consists of:
 - mutex
 - with ability to wait (block) for a certain condition to become true
 
-#HSLIDE
+---
 ## Internal monitor
 <img src="lecture10/presentation/assets/img/monitor.png" alt="monitor" style="width: 500px;"/>
 
-#HSLIDE
+---
 ## wait()/notify()
 Class **Object** has API for internal monitor:
 ```java
@@ -355,71 +403,21 @@ class java.lang.Object {
 }
 ```
 
-#HSLIDE
+---
 ## Agenda
 1. Threads and processes
 1. Multiple threads in game
 1. Parallelism and Concurrency
 1. What can go wrong with concurrency?
-1. What to do?
-1. **[Practice]**
+1. Concurrency and data races
+1. Synchronization. Critical section
+1. **[Game threading scheme]**
 
-#HSLIDE
-### Queue
-Queue is a shared resource in a multithreaded environment.
+---
+## Threading scheme in game server
+<img src="lecture10/presentation/assets/img/GameThreads.png" alt="exception" style="width: 850px;"/>
 
-We will use **BlockingQueue** implementation.
-
-```java
-interface BlockingQueue<E> implements java.util.Queue<E> {
-    /** 
-     * Inserts the specified element into this queue ...
-     */
-    void put(E e);
-    
-    /**
-    * Retrieves and removes the head of this queue, waiting up to the
-    * specified wait time if necessary for an element to become available.
-    */
-    E poll(long timeout, TimeUnit unit);   
-}
-```
-
-
-#HSLIDE
-### Queue
-<img src="lecture10/presentation/assets/img/queue.png" alt="queue" style="width: 750px;"/>
-
-#HSLIDE
-## Reasoning about concurrent programs
-Bugs in concurrent programs are hard to reproduce. Hopefully we have toolchain for analysis of multithreaded programs.  
-**jcstress**
-http://openjdk.java.net/projects/code-tools/jcstress/  
-(requires JDK9)
-
-#HSLIDE
-### Back to the root
-
-```java
-class java.lang.Object {
-    public final native void wait(long timeout) throws InterruptedException;
-    public final native void notify();
-    public final native void notifyAll();
-}
-```
-
-#HSLIDE
-### How-to
-1. notify vs notifyAll
-2. how to wait - while approach
-
-
-#HSLIDE
-### Monitors
-<img src="lecture10/presentation/assets/img/monitor.png" alt="monitor" style="width: 400px;"/>
-
-
-#HSLIDE
+---
 ## Summary
 - Java provide powerful Memory Model that allows to create high-performance concurrent applications.
 - concurrency is not obvious
@@ -433,7 +431,7 @@ class java.lang.Object {
 - If concurrency is inevitable, use java.util.concurrent
 - To use low-level concurrency you must fully understand it
 
-#HSLIDE
+---
 ## References
 [Java concurrency in practice (signature book for Java Developer)](https://www.amazon.com/Java-Concurrency-Practice-Brian-Goetz/dp/0321349601)   
 [Alexey Shipilev blog (JMM, concurrency, performance, benchmarks for people, JDK contributor)](https://shipilev.net/)  
@@ -443,7 +441,7 @@ class java.lang.Object {
 [What Every Dev Must Know About Multithreaded Apps (Common knowledge)](https://lyle.smu.edu/~coyle/cse8313/handouts.fall06/s04.msdn.multithreading.pdf)  
   
 
-#HSLIDE
+---
 **Оставьте обратную связь**
 (вам на почту придет анкета)  
 

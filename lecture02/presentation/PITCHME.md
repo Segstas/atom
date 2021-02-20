@@ -3,35 +3,98 @@
 lecture 2
 ## Basics
 
+
 #HSLIDE
 ## Отметьтесь на портале
-https://atom.mail.ru/
+https://sphere.mail.ru/
+
 
 #HSLIDE
 ### get ready
+Course repo - [https://github.com/rybalkinsd/atom](https://github.com/rybalkinsd/atom)
 ```bash
 > git fetch upstream
 > git checkout -b lecture02 upstream/lecture02
+> cd lecture02
+
+open as new project
 ```
 
 #HSLIDE
 ### Agenda
+1. gradle
 1. Classes and objects
 1. Inheritance
 1. Interface and abstract class
 1. Enum
+1. Practice
+
+
+#HSLIDE
+### Gradle
+1. **[gradle]**
+1. Classes and objects  
+1. Inheritance
+1. Interface and Abstract class
+1. Enum
+1. Practice
+
+
+#HSLIDE
+## How gradlew works
+Our repository has many gradle projects    
+**build.gradle** - how to build specific project  
+  
+
+#HSLIDE
+### gradlew clean build
+```bash
+> ./gradlew clean build
+blah-blah
+BUILD SUCCESSFUL
+
+> java -jar build/libs/lecture02.jar 
+Hello, World!
+
+# jar listing
+> jar -tfv  build/libs/lecture02.jar
+...
+```
+
+#HSLIDE
+### gradlew jar
+**jar** - Java Archive (way to distribute project in one *executable*)
+to build **jar** with gradle
+```bash
+# build fat jar @see build.gradle 
+> ./gradlew jar
+blah-blah
+BUILD SUCCESSFUL
+
+> java -jar build/libs/lecture02.jar
+Hello, World!
+
+# jar listing
+> jar -tfv  build/libs/lecture02.jar
+...
+```
+
 
 #HSLIDE
 ### Classes and objects
+1. gradle
 1. **[Classes and objects]**  
 1. Inheritance
 1. Interface and Abstract class
 1. Enum
+1. Practice
+
 
 #HSLIDE 
 ### Flashback
 - Java is **object-oriented**, **class-based**
 - Java has static strong typization 
+
 
 #HSLIDE
 ### Static strong typization
@@ -44,11 +107,13 @@ https://atom.mail.ru/
     long num = 42; // <-- legal
     int mindTheGap = 42L; // <-- compilation error
     ```
- 
+
+
 #HSLIDE
 ### Object oriented
-- Everything is an object*
+- Everything is an object (except primitives)
 - No code outside class
+
 
 #HSLIDE
 ### `class` Definition
@@ -58,6 +123,16 @@ class Player {
     private String name;
 }
 ``` 
+
+#HSLIDE
+### Where class can be defined
+1. Public class in file (only one)
+1. non-public class in file (any number)
+1. inside other class (**nested class**)
+1. inside method (**inner class**)
+  
+Be simple, use public class in file
+
 
 #HSLIDE
 ### Instantiation
@@ -73,8 +148,9 @@ Player myPlayer = new Player();
  
 **pTwo == winner**
 
+
 #HSLIDE
-### `null` keyword
+### `null` literal
 
 `null` is a default value for reference type.
 
@@ -83,10 +159,10 @@ String str = null;
 
 Player player = null;
 
-assertThat(player, is(not(instanceOf(Player.class)))); // <-- OK
 assertFalse(player instanceOf Player); // <-- OK
-assertThat(null, is(not(instanceOf(AnyClass.class)))); // <-- OK 
+assertFalse(null instanceOf AnyClass); // <-- OK 
 ```
+
 
 #HSLIDE
 ### quiz
@@ -101,24 +177,9 @@ System.out.println(null == null);
 
 [Read more about `null`](http://javarevisited.blogspot.ru/2014/12/9-things-about-null-in-java.html)
 
-#HSLIDE
-###Constructor
-```java
-class Player {
-    private int id;
-    private String name;
-    
-    public Player(int paramId, String paramName) {
-        id = paramId;
-        name = paramName;
-    }
-}
-```
-
-Looks shitty
 
 #HSLIDE
-### `this` keyword
+### Constructor & `this` keyword
 ```java
 class Player {
     private int id;
@@ -128,9 +189,14 @@ class Player {
         this.id = id;
         this.name = name;
     }
+    
+    public Player(int id) {
+        this(id, "NO NAME");
+    }
 }
 ```
 [Read more about `this`](https://docs.oracle.com/javase/tutorial/java/javaOO/thiskey.html)
+
 
 #HSLIDE
 ### OK, now we have a constructor
@@ -147,7 +213,7 @@ Player customPlayer = new Player(10, "Niels Bohr");
 #HSLIDE
 ### Default constructor
 
-Of course *NO*.
+**NO** default constructor, if any constructor is defined.
 ```java
 Player simplePlayer = new Player(); // <-- Compilation error
 ```
@@ -161,10 +227,12 @@ The default constructor is a no-argument constructor automatically generated **u
 
 #HSLIDE
 ### Inheritance
+1. gradle
 1. Classes and objects  
 1. **[Inheritance]**
 1. Interface and Abstract class
 1. Enum
+1. Practice
 
 
 #HSLIDE
@@ -186,7 +254,7 @@ Titled message **is a** Message
 
 
 #HSLIDE
-# Java does not support multiple inheritance
+## Java does not support multiple inheritance
 
 
 #HSLIDE
@@ -196,36 +264,31 @@ Titled message **is a** Message
     ```java
     private Object topSecret; 
     ```
-    
 1. **default** (package private) - as private + within package
     ```java
     int number = 42;
     ```
-
 1. **protected** - as default + from subclasses
     ```java
     protected Boolean секретик;
     ```
-
 1. **public** - worldwide
     ```java
     public String getMe;
     ```
+1. Modules visibility
 
 [Read more in official docs](https://docs.oracle.com/javase/tutorial/java/javaOO/accesscontrol.html)
 
 
 #HSLIDE
-### `instanceof` operator, miss me?
+### `instanceof` operator
 
 ```java
 Message message = new Message();
 
 assertTrue(message instanceof Message); // <-- OK
-assertThat(message, is(instanceOf(Message.class))); // <-- OK
 ```
-
-`instanceof` **is not** slow	
 
 
 #HSLIDE
@@ -234,12 +297,11 @@ Everything* is instance of `Object`.
 
 ```java
 // Informally
-class Message extends Object { 
-}
+class Message extends Object { }
 ```
 
 ```java
-assertThat(message, is(instanceOf(Object.class))); // <-- OK
+assertTrue(message instanceOf Object); // <-- OK
 ```
 
 #HSLIDE
@@ -249,6 +311,7 @@ I want:
 ```java
 TitlesMessage message = new TitledMessage(title, content);
 ```
+
 
 #HSLIDE
 ### Constructors and inheritance
@@ -263,6 +326,7 @@ class Message {
 }
 ```
 
+
 #HSLIDE
 ### Constructors and inheritance
 
@@ -271,7 +335,7 @@ class TitledMessage extends Message {
     private String title;
     
     public TitledMessage(String title, String content) {
-        // hmmmm
+        // ..........
     }
 }
 
@@ -287,7 +351,6 @@ class Message {
 
 #HSLIDE
 ### super
-
 ```java
 class TitledMessage extends Message {
     private String title;
@@ -336,7 +399,8 @@ Usage
 Message message = new Message("my content");
 message.getContent();
 
-assertThat(message.getContent(), is(equalTo("my content"))); // <-- OK
+assertTrue(message.getContent().equals("my content"))); // <-- OK
+assertEquals("my content", message.getContent())); // <-- OK
 ```
 
 
@@ -422,26 +486,25 @@ and **return type** as an instance method in the superclass **overrides** the su
 
 **Note:** `@Override` is **just an annotation to declare** your intentions to override method 
 
+#HSLIDE
+### Override vs overload note
+
+**Override** resolves method in **runtime**  
+**Overload** resolves method in **compile-time**
 
 #HSLIDE
 ### `Object` class #2
 ```java
 class Object {
     public boolean equals(Object obj)
-    public int hashCode()
     public String toString()
-
-    public final Class getClass()
-    protected Object clone() throws CloneNotSupportedException
-    protected void finalize() throws Throwable
-    // ...
+    // o
 }
 ```
 
 
 #HSLIDE
-### So
-
+### toString()
 ```java
 class Message {
     private String content;
@@ -453,36 +516,94 @@ class Message {
 }
 ```
 
+#HSLIDE
+### Two ways to compare objects
+1. **==**  
+Compares that references point to the same object in memory  
+1. **equals()**  
+Custom object equivalence check (by default works as **==**)  
 
 #HSLIDE
-### Polymorphism, One more thing #1
+### equals()
+```java
+public class Point {
+    private int x;
+    private int y;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Point point = (Point) o;
+        return x == point.x && y == point.y;
+    }
+}
+```
+
+#HSLIDE
+### Encapsulation wisdom
 
 ```java
 Message message = new TitledMessage("Awesome title", "Perfect content");
-
-message instanceOf TitledMessage <-- It is true 
+message instanceOf TitledMessage // <-- It is true 
 ```
-
+Software engineering wisdom:  
 **Do not** disclose the details of implementation (without need).
-
-Сonsequence - use "interface" wherever you can.
-
+Use "interface" wherever you can.  
+  
+*btw why?*
 
 #HSLIDE
-### Polymorphism, One more thing #2
+### `final` keyword
 
-Override resolves method in **runtime**
+- constant declaration 
+```java
+class Utils {
+    public final int DEFAULT_MAX = 0;
+}
+```
+    
+- final method (forbidden override)
+```java
+class Message {
+    public final String getContent() { 
+       return content; 
+    } 
+}
+```
 
-*Note:*
-Overload resolves method in **compile-time**
+#HSLIDE
+### Immutable points
+```java
+public class Point {
+    private final int x;
+    private final int y;
+}
+```
+NOTE:
+```java
+public class Bar {
+    //does not incur Point immutability, only firstCorner reference
+    private final Point firstCorner;
+    private final Point secondCorner;
+}
+```
+
+#HSLIDE
+### Encapsulation wisdom
+Use immutable (**final**) where possible  
+  
+*btw why?*
 
 
 #HSLIDE
 ### Interface and Abstract class
+1. gradle
 1. Classes and objects  
 1. Inheritance
 1. **[Interface and Abstract class]**
 1. Enum
+1. Practice
 
 
 #HSLIDE
@@ -515,8 +636,8 @@ class Message implements Storable {
 Storable smthToSave = new Message("Perfect content");
 smthToSave.saveTo(new File("path to file"));
 
-assertThat(smthToSave, is(instanceOf(Message.class))); // <-- OK
-assertThat(smthToSave, is(instanceOf(Storable.class))); // <-- OK
+assertTrue(smthToSave instanceOf Message); // <-- OK
+assertTrue(smthToSave instanceOf Storable); // <-- OK
 ```
 
 #HSLIDE
@@ -562,19 +683,21 @@ public class Englishman extends AbstractHuman {
 #HSLIDE
 ### abstract class vs interface
 
-|                   | Interface             | Abstract class                |
-|:----------------- |:--------------------- | :-----------------------------|
-| Inheritance       | implement many        | extend one                    |
-| Fields            | public static only    | no limits                     |
-| Access modifiers  | public only           | no abstract private methods   |
-| Constructors      | no constructors       | no limits                     |
+|                   | Interface                 | Abstract class                |
+|:----------------- |:--------------------------| :-----------------------------|
+| Inheritance       | implement many            | extend one                    |
+| Fields            | public static only        | no limits                     |
+| Methods           | public / public static    | no abstract private methods   |
+| Constructors      | no constructors           | no limits                     |
 
 
 #HSLIDE
+1. gradle
 1. Classes and objects  
 1. Inheritance
 1. Interface and Abstract class
 1. **[Enum]**
+1. Practice
 
 
 #HSLIDE
@@ -644,25 +767,6 @@ Fundamental classes are in java.lang
 
 [Read more in official docs](https://docs.oracle.com/javase/tutorial/java/package/packages.html)
 
-
-#HSLIDE
-### `final` keyword
-
-- constant declaration 
-```java
-class Utils {
-    public final int DEFAULT_MAX = 0;
-}
-```
-    
-- final method (forbidden override)
-```java
-class Message {
-    public final String getContent() { 
-       return content; 
-    } 
-}
-```
     
 - final class (forbidden inheritance)
 ```java
@@ -672,6 +776,15 @@ final class Message {
 
 
 #HSLIDE
+### Agenda
+1. gradle
+1. Classes and objects
+1. Inheritance
+1. Interface and abstract class
+1. Enum
+1. Practice
+
+#HSLIDE
 ### Practice
 @See ru.atom.geometry
 
@@ -679,34 +792,31 @@ final class Message {
 
 
 #HSLIDE
-### How to
+### Practice 'what to do'
+1. Unignore 
 1. Pull-request from your repo /lecture02 to course repo /lecture02
-2. 3 Points
+2. 2 Points
     - remove `@Ignore` from `PointPointCollisionTest`
     - all tests and checks should pass
 3. 3 Points more
    - remove `@Ignore` from `BarBarCollisionTest` and `BarPointCollisionTest`
    - all tests and checks should pass
    
-      
+
 #HSLIDE
-### Bonus - gradlew build
-```bash
-# build fat jar @see build.gradle in lecture02 submodule 
-> ./gradlew :lecture02:jar
-> blah-blah
-> BUILD SUCCESSFUL
-
-> java -jar lecture02/build/libs/lecture02-1.0-SNAPSHOT.jar 
-> Hello, World!
-
-# jar listing
-> jar -tfv  lecture02/build/libs/lecture02-1.0-SNAPSHOT.jar
-```
-
+## Summary
+1. Java - object-oriented, class-based
+1. All code inside classes
+1. All classes inherited from Object
+1. No multiple inheritance, multiple interface implementations
+1. private, protected, *default*, access public modifiers
+1. overload, override
+1. equals() vs ==
+1. know how to create and run **jar**
 
 #HSLIDE
 **Оставьте обратную связь**
 (вам на почту придет анкета)  
+Ставьте класс!
 
 **Это важно!**

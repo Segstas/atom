@@ -1,56 +1,78 @@
-#HSLIDE
+---
 # Java
-lecture 5
-## Web server
+2018/lecture 5
+## Spring, Threads, Annotations
 
 
-#HSLIDE
+
+---
 ## Отметьтесь на портале
-https://atom.mail.ru/
+https://sphere.mail.ru/
 
 
-#HSLIDE
+---
 ### get ready
+[https://github.com/rybalkinsd/atom](https://github.com/rybalkinsd/atom)
 ```bash
 > git fetch upstream
 > git checkout -b lecture05 upstream/lecture05
+> cd lecture05
 ```
 
 Refresh gradle project
 
 
-#HSLIDE
+---
 ### Agenda
 1. Threads
-1. Servlets
-1. HTTP Web Server
 1. Annotations
+1. Spring, Spring Boot
+1. Inversion of Control, Dependency Injection
+1. Beans, ApplicationContext
+1. Match-maker
 
+---
+### Agenda
+1. **[Threads]**
+1. Annotations
+1. Spring, Spring Boot
+1. Inversion of Control, Dependency Injection
+1. Beans, ApplicationContext
+1. Match-maker
 
-#HSLIDE
+---
+### Threads intro
+As we go into the land of servers, we face multi-threaded environment.  
+  
+Most of the hard part of multi-threading is covered with frameworks.  
+So this gentle introduction only covers basics that are necessary so far.  
+  
+We will have deeper topics on concurrency further in the course.
+
+---
 ### Why do we need parallel execution?
 
 
-#HSLIDE
+---
 ### Concurrency vs parallelism
 **Concurrency** - contention on shared resources
 
 **Parallelism** is possible without concurrency
 
 
-#HSLIDE
+---
 ### Process vs Thread
 **Process** has dedicated resources (memory)
 
 **Threads** share memory space
 
 
-#HSLIDE
+---
 ### Process vs Thread
 <img src="lecture05/presentation/assets/img/process.png" alt="process" style="width: 450px;"/>
 
 
-#HSLIDE
+---
 ### Operating System role
 1. Creates threads (clone syscall)
 1. Schedules threads (context switch)
@@ -58,10 +80,8 @@ Refresh gradle project
 
 Behaviour of multithreaded program is (inter alia) dependent on OS scheduling
 
-Consequences?
 
-
-#HSLIDE
+---
 ### interface Runnable
 ```java
 @FunctionalInterface
@@ -71,7 +91,7 @@ interface Runnable {
 ```
 
 
-#HSLIDE
+---
 ### class Thread
 ```java
 class Thread implements Runnable {  
@@ -85,7 +105,7 @@ class Thread implements Runnable {
 ```
 
 
-#HSLIDE
+---
 ### Start and Run
 ```java
 new Thread().start();
@@ -94,11 +114,11 @@ new Thread( runnable ).start();
 ```
 
 
-#HSLIDE
+---
 ### Start and Run
 <img src="lecture05/presentation/assets/img/newthread.png" alt="exception" style="width: 750px;"/>
 
-#HSLIDE
+---
 ### Thread instantiation
 @See ru.atom.thread.instantiation and tests
 
@@ -108,8 +128,15 @@ new Thread( runnable ).start();
 - Thread::interrupt
 - Thread::sleep
 
+---
 
-#HSLIDE
+### Thread interruption
+An interrupt is an indication to a thread that it should stop what it is doing and do something else. It's up to the programmer to decide exactly how a thread responds to an interrupt, but it is very common for the thread to terminate.  
+A thread sends an interrupt by invoking interrupt on the Thread object for the thread to be interrupted. For the interrupt mechanism to work correctly, the interrupted thread must support its own interruption.  
+https://docs.oracle.com/javase/tutorial/essential/concurrency/interrupt.html
+
+---
+
 ### Waiting for thread termination
 @See ru.atom.thread.join and tests
 
@@ -117,7 +144,7 @@ new Thread( runnable ).start();
 - Thread::interrupt
 
 
-#HSLIDE
+---
 ### jstack
 Util to observe java process stack state.
  
@@ -125,57 +152,11 @@ Util to observe java process stack state.
 # show all java processes
 > jcmd
 # get report
-> jstack <pid> > report.info
+> jstack <pid> report.info
 > less report.info
 ```
 
-
-#HSLIDE
-### Practice #1
-Our Bomberman is a client server game.
-
-As a client server game we have Clients or **Connections**
-
-Clients want to play. So, we have Games or **GameSessions** 
- 
-
-#HSLIDE
-### Matchmaker
-<img src="lecture05/presentation/assets/img/mm.png" alt="mm" style="width: 750px;"/>
-
-
-#HSLIDE
-### Matchmaking algorithm
-<img src="lecture05/presentation/assets/img/mmalgo.png" alt="mmalgo" style="width: 750px;"/>
-
-
-#HSLIDE
-### Matchmaking algorithm
-**Assume we have a queue storing connections**
-
-Matchmaker is an infinity-loop algorithm with steps
-1. **Poll connection** from queue
-1. **Collect** polled connection to game GameSession candidates
-1. **Check** if candidates count equals to PLAYERS_IN_GAME constant 
-    - If **no** continue to step #1
-    - If **yes**
-        - Create and save GameSession
-        - Clean GameSession candidates
-        - Continue to step #1
-
-
-#HSLIDE
-### Connection producer
-We do not have server to get connections for now. 
-
-We need an instance to emulate client.  
-
-**Connection producer** will put new requests to our **queue** time-to-time.
-
-It is possible to have many producers.
-
-
-#HSLIDE
+---
 ### Queue
 Queue is a shared resource in a multi-threaded environment.
 
@@ -197,128 +178,42 @@ interface BlockingQueue<E> implements java.util.Queue<E> {
 ```
 
 
-#HSLIDE
+---
 ### Queue
 <img src="lecture05/presentation/assets/img/queue.png" alt="queue" style="width: 750px;"/>
 
 
-#HSLIDE
-### And now
-@See ru.atom.thread.mm and tests 
-
-
-#HSLIDE
+---
 ### Your turn
 @See ru.atom.thread.practice in tests
  
-We have
+**We have**
 1. Event producers
-1. ThreadSafe Event queue
+1. Event queue
 1. Event processor
-
-You want to
+  
+**You want to**
 1. Fix `EventProcessorTest`
 1. Remove @Ignore annotation
 1. Implement missing methods
 
 
-#HSLIDE
-### Web server
-Web server - is a system that processes request via HTTP.
-
-Examples:
-- Apache HTTP Server
-- NGINX
-
-Can be embedded into application
-- Jetty **our choice**
-- Tomcat
-
-Plain web server is ok for static content. 
+---
+### Agenda
+1. Threads
+1. **[Annotations]**
+1. Spring, Spring Boot
+1. Inversion of Control, Dependency Injection
+1. Beans, ApplicationContext
+1. Match-maker
 
 
-#HSLIDE
-### Application server
-Two types of solutions:
-1. Old smelly JEE
-    - Sun GlassFish
-    - IBM WebSphere
-    - RedHat JBoss
-1. The other way
-
-
-#HSLIDE
-### Servlet
-<img src="lecture05/presentation/assets/img/servlet.png" alt="servlet" style="width: 750px;"/>
-
-
-#HSLIDE
-### Jetty
-Jetty provides a Web server and javax.servlet container
-
-Supports
-- HTTP/2
-- WebSocket
-- ...
-
-
-#HSLIDE
-### Server approximate behavior
-1. Start
-1. Initialize internal servlets
-1. Create a "mapping" **(request, /path)** -> handling servlet
-1. Apply mapping on incoming request
-1. Process **single request in single thread** but in parallel*
-1. Process routing of outgoing response
-
-
-#HSLIDE
-### HelloWorld servlet
-@See ru.atom.servlet.hw
-
-- Servlet class
-- doGet / doPost
-- jetty server init
-
-
-#HSLIDE
-### Practice #2
-No more Connection Producers.
-
-Now we can start a **jetty server**.
-
-
-#HSLIDE
-### API
-Serving two types of request:
-- Connect new player with **id** and **name**
-```bash
-GET /connect?id=1&amp;name=bomberman HTTP/1.1
-Host: localhost:8080
-```
-
-- View all games list 
-```bash
-GET /games HTTP/1.1
-Host: localhost:8080
-```
-    
-@See ru.atom.servlet.mm
-
-
-#HSLIDE
-### +/- of plain Servlets
-1. Is it convenient?
-1. Could I write less code?
-1. Is it as easy as you can imagine?
-
-
-#HSLIDE
+---
 ### Annotations
-What annotations did you see before?
+Which annotations did you see before?
 
 
-#HSLIDE
+---
 ### Override
 ```java
 @Target(ElementType.METHOD)
@@ -327,97 +222,313 @@ public @interface Override {
 }
 ```
 
-
-#HSLIDE
+---
 ### Reflection API
 Reflection is an API to find information about classes/fields/methods 
 in application runtime.
 
 @See ru.atom.annotation and tests
 
-
-#HSLIDE
-### Jersey
-[Jersey](https://jersey.java.net/) is
-1. RESTful Web services framework
-1. Serlvet-free from our point of view
-1. Lightweight (low overhead) compare to servlets
-1. Minimalistic syntax
+---
+### Retention policy
+Annotation has **Retention policy**, which indicated, whether info about the annotation will be available at runtime  
+**RetentionPolicy.RUNTIME** guarantees that annotation will be available in **runtime**
 
 
-#HSLIDE
-### Jersey Hello World
-@See ru.atom.jersey.hw
+---
+### Agenda
+1. Threads
+1. Annotations
+1. **[Spring, Spring Boot]**
+1. Inversion of Control, Dependency Injection
+1. Beans, ApplicationContext
+1. Match-maker
 
-- @Path, @GET, @POST annotations
-- jersey initialization
+---
+
+### Matchmaker example
+
+We will use MathMaker application to study basic concepts of Spring  
+  
+> @see MatchMakerApp
+
+---
+### Spring
+<img src="lecture05/presentation/assets/img/spring-by-pivotal.png" alt="exception" style="width: 300px;"/>  
+is a universal open-source framework, used to develop web applications  
+https://spring.io/  
+  
+First version - **2002**
+
+---
+### Spring modules
+It includes a number of modules for different functionality:
+- Spring MVC for building Web Applications
+- Working with Databases
+- Messaging
+- RPC
+- Security
+- Testing
+  
+Today we will build web application with **Spring MVC** module
+
+---
+### Spring Boot
+Spring is a powerful tool and has a lot of configuration options.  
+**Spring Boot** is a project, that makes working with Spring easier:
+- embedded tomcat included with servlet container
+- minimum configuration, sane defaults
+- metrics, health checks and externalized configuration
+https://projects.spring.io/spring-boot/  
+  
+First version: **2014**
+  
+**With Spring Boot our life is much easier :)**
 
 
-#HSLIDE
-### Make MatchMaker great again
-Goals
-1. Migrate to jersey
-1. Migrate connect method from GET to POST
-
-
-#HSLIDE
-### API
-Serving two types of request
-
-- Connect 
-
-```bash
-POST /connect HTTP/1.1
-Host: localhost:8080
-Content-Type: application/x-www-form-urlencoded
-
-id=1&name=bomberman
+---
+### Spring boot distribution
+```groovy
+    // dependencies, necessary for building generic web applicaitons
+    compile group: 'org.springframework.boot', name: 'spring-boot-starter-web', version: '2.0.0.RELEASE'
+    // actuator
+    compile group: 'org.springframework.boot', name: 'spring-boot-starter-actuator', version: '2.0.0.RELEASE'
 ```
 
--View all games list
+---
+
+### Spring boot actuator
+Spring boot actuator - usefool dependency, providing web interface to meta data of application and even interact with it  
+  
+**Actuator endpoints:**
+https://docs.spring.io/spring-boot/docs/current/reference/html/production-ready-endpoints.html  
+By default most endpoints are disabled. To enable them we need to enable them in **application.properties**
+
+---
+
+### application.properties
+The standard way to configure java application - **application.properties** should appear in classpath  
+To enable actuator endpoints:
+```properties
+management.endpoints.web.exposure.include=*
+```
+We also can configure actuator and server ports there:
+```properties
+#server port:
+server.port = 8080
+#actuator port:
+management.server.port = 7001
+```
+
+---
+### Useful actuator endpoints
+**/actuator/health**  
+overall application status  
+  
+**/actuator/mappings**  
+available mappings  
+  
+**/actuator/beans**  
+all beans in context
+---
+
+### Agenda
+1. Threads
+1. Annotations
+1. Spring, Spring Boot
+1. **[Inversion of Control, Dependency Injection]**
+1. Beans, ApplicationContext
+1. Match-maker
+
+---
+
+### Inversion of Control
+**Principle:** control flow is transferred to external framework  
+**Why:** loose coupling, easier to develop, easier to test
+
+---
+
+### Dependency Injection
+Objects lifecycle is managed by external framework (**IoC container**)
+- instantiation
+- wiring
+- removal
+
+---
+
+### Spring provides IoC container
+https://docs.spring.io/spring/docs/current/spring-framework-reference/core.html#beans  
+Interface of **IoC Container** in Spring:  
+**org.springframework.context.ApplicationContext**  
+- methods for accessing application components. **ListableBeanFactory**
+- methods to load file resources in a generic fashion. **ResourceLoader**
+- methods to publish events to registered listeners. **ApplicationEventPublisher**
+- methods to resolve messages, supporting internationalization. **MessageSource**
+
+---
+
+### Agenda
+1. Threads
+1. Annotations
+1. Spring, Spring Boot
+1. Inversion of Control, Dependency Injection
+1. **[Beans, ApplicationContext]**
+1. Match-maker
+
+---
+
+### Beans
+https://docs.spring.io/spring/docs/current/spring-framework-reference/core.html#beans-definition  
+Beans are java objects, that are managed by **IoC Container**  
+  
+How to make **bean** out of **POJO** (Plain Old Java Object)?  
+With bean definition configuration
+
+---
+### Spring configuration
+There are several options for beans configuration:
+- XML Description
+- Groovy Description
+- Annotations
+  
+We will use annotations as this is the cleanest one
+
+---
+
+### Beans Detection
+For spring to create and manage beans, we must provide bean definitions  
+**How to create bean definition with annotations:**
+- mark class with **@Configuration**/**@Component**/**@Controller**/**@Service**/**@Repository** or annotations, inheriting their semantics
+- mark any method inside such class with **@Bean** (config method)
+
+---
+
+### Beans autowiring
+https://docs.spring.io/spring/docs/current/spring-framework-reference/core.html#beans-autowired-annotation  
+Once we have beans definitions, we can inject those beans with **@Autowired**  
+Possible targets:
+- constructor
+- field
+- setter method
+- config method
+
+---
+
+## ByType and ByName autowiring
+```java
+@Service
+public class MatchMaker implements Runnable {
+    @Autowired //How do spring know which bean to inject?
+    private ConnectionQueue connectionQueue;
+}
+```
+- ByType: it will search the bean with type **ConnectionQueue** or implementation in ApplicationContext
+- ByName: with **@Qualifier** annotation we can autowire bean by name  
+https://docs.spring.io/spring/docs/current/spring-framework-reference/core.html#beans-autowired-annotation-qualifiers
+---
+
+### Bean scopes
+https://docs.spring.io/spring/docs/current/spring-framework-reference/core.html#beans-factory-scopes
+Beans can have different life span depending on requirements.  
+  
+**[Common scopes:]**  
+- Singleton (default)
+- Prototype: single bean definition to any number of object instances
+- request: single bean definition to the lifecycle of a single HTTP reques
+- websocket: single bean definition to the lifecycle of a WebSocket
+...
+
+---
+
+### Spring: see documentation
+Both basic concepts and details are fully covered in spring documentation.
+https://docs.spring.io/spring/docs/current/spring-framework-reference/index.html
+
+---
+
+### Agenda
+1. Threads
+1. Annotations
+1. Spring, Spring Boot
+1. Inversion of Control, Dependency Injection
+1. Beans, ApplicationContext
+1. **[Match-maker]**
+
+---
+### Match-maker practice
+@See ru.atom.mm and tests 
+
+---
+### Match-maker
+Our Bomberman is a client-server game.
+
+As a client server game we have Clients or **Connections**
+
+Clients want to play. So, we have Games or **GameSessions** 
  
-```bash
-GET /games HTTP/1.1
-Host: localhost:8080
-```
-    
-@See ru.atom.jersey.mm
-    
 
-#HSLIDE
-### Interceptors and filters
-Sometimes you want to add some aspect to your method.
-
-Authorization:
-
-```bash
-POST /connect HTTP/1.1
-Host: localhost:8080
-Content-Type: application/x-www-form-urlencoded
-Authorization: <auth token>
-
-id=1&name=bomberman
-```
+---
+### Match-maker
+<img src="lecture05/presentation/assets/img/mm.png" alt="mm" style="width: 750px;"/>
 
 
-#HSLIDE
-### Authorized aspect
-@See ru.atom.jersey.aspect
-
-- Filter definition
-- Adding filter in jetty context
-- Applying filter to methods
+---
+### Match-making algorithm
+<img src="lecture05/presentation/assets/img/mmalgo.png" alt="mmalgo" style="width: 750px;"/>
 
 
-#HSLIDE
+---
+### Match-making algorithm
+**Assume we have a queue storing connections**
+
+Match-maker is an infinity-loop algorithm with steps
+1. **Poll connection** from queue
+1. **Collect** polled connection to game GameSession candidates
+1. **Check** if candidates count equals to PLAYERS_IN_GAME constant 
+    - If **no** continue to step #1
+    - If **yes**
+        - Create and save GameSession
+        - Clean GameSession candidates
+        - Continue to step #1
+
+
+---
+### Connection producer
+We do not have server to get connections for now. 
+We need an instance to emulate client.  
+  
+**Connection producer** will put new requests to our **queue** time-to-time.
+It is possible to have many producers.
+
+
+---
+### Practice 2
+#### We have
+Math-maker service implementation
+@see ru.atom.boot.mm  
+  
+#### Implement:
+- ConnectionController::list()
+  
+#### Un-ignore and fix:
+- ConnectionControllerIntegrationTest::list()
+- GameControllerTest::list() 
+- GameControllerTest::connect()
+- GameControllerIntegrationTest::list()
+
+
+---
 ### Summary
-1. Threads are not difficult until concurrency comes
-1. Jersey is lightweight and good with jetty
-1. Annotations info can disappear in compile-time 
+1. **Threads** are not difficult until concurrency comes
+1. **Annotations** help to build meta-information about application and can be used in both compile-time and runtime
+1. **Spring** is powerful universal framework
+1. **Spring Boot** makes a lot of staff to keep Spring **simple** and work out of the box
+1. **MVC** - methodology for building web application (learn it)
+1. **Spring MVC** is Spring module that allows to build web application based on MVC pattern
 1. Keep learning **HTTP** 
 
 
-#HSLIDE
+---
 **Оставьте обратную связь**
 (вам на почту придет анкета)  
 
